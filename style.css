@@ -1,6 +1,6 @@
 /*
  * Visual igual ao do simulador de algoritmo genético do grupo
- * (sistema da Vercel, de awesome-design-md, com Geist e Geist Mono).
+ * (sistema de design da Vercel, de awesome-design-md, com Geist e Geist Mono).
  */
 :root {
   color-scheme: light;
@@ -471,42 +471,65 @@ a.btn { text-decoration: none; }
 .projects th { white-space: nowrap; }
 @media (max-width: 600px) { :root { --ctl: 44px; } .small-btn { height: 44px; } }
 
-/* ===== Ajustes do simulador de formigas ===== */
-.btn-grid .wide { grid-column: 1 / -1; }
-.fields.sep { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+/* ===== Simulador de colônia de formigas ===== */
+.vertices td.c-id { width: 4.5rem; }
+.vertices td.c-x, .vertices td.c-y { width: auto; }
+.fields.sep { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .field select { width: 100%; }
-input[type="number"] { -moz-appearance: textfield; }
+.vert-hint { margin: 10px 0 0; }
+.speed { margin-top: 14px; }
+.error-list { margin: 10px 0 0; padding: 10px 12px 10px 28px; border-radius: var(--r-m); background: color-mix(in srgb, var(--bad) 8%, var(--surface)); color: var(--bad); font-size: 13px; line-height: 19px; }
+.error-list li + li { margin-top: 4px; }
+.error-list[hidden] { display: none; }
 
-.metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr); }
-.metric p { margin: 0; }
-.metric .m-value { font-size: 26px; line-height: 32px; }
-.accent-text { background: linear-gradient(90deg, #007cf0, #00a5c8); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.m-route { font: 500 15px/22px var(--mono); overflow-wrap: anywhere; color: var(--ink); }
+.metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.metrics .m-value { font-size: 28px; line-height: 34px; }
+.metrics .m-value.pending { font-size: 16px; line-height: 34px; letter-spacing: 0; font-weight: 500; }
+.metric.accent .m-value.pending { -webkit-text-fill-color: var(--muted); }
+.metric.route { grid-column: 1 / -1; box-shadow: inset 0 1px 0 var(--line); }
+.m-route { font: 500 18px/26px var(--mono); overflow-wrap: anywhere; }
 @media (max-width: 720px) {
   .metrics { grid-template-columns: 1fr 1fr; }
-  .metric.route { grid-column: 1 / -1; box-shadow: inset 0 1px 0 var(--line); }
 }
 
-/* Grafo: as cores vêm do script.js como atributos do SVG; o CSS as substitui */
-#grafo svg { display: block; width: 100%; height: auto; max-height: 460px; }
-#grafo line { stroke: #333333; stroke-width: 1.5; }
-#grafo line[stroke="#c940d5"] { stroke: #3291ff; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 6px #3291ff99); }
-#grafo text { fill: #8f8f8f; font-family: var(--mono); font-size: 11px; }
-#grafo text:not([font-size]) { fill: #ededed; font-family: var(--font); font-size: 14px; font-weight: 500; }
-#grafo circle { stroke: #0a0a0a; stroke-width: 3; }
-#grafo circle[fill="green"] { fill: #50e3c2; }
-#grafo circle[fill="orange"] { fill: #f5a623; }
+#grafo svg { display: block; width: 100%; height: auto; max-height: 480px; }
+#grafo .aresta { stroke: #50e3c2; stroke-linecap: round; transition: stroke-width .25s var(--ease), stroke-opacity .25s var(--ease); }
+#grafo .aresta.sel { stroke: #ff4d9d; stroke-opacity: 1 !important; }
+#grafo .rota { stroke: #3291ff; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 5px #3291ffaa); }
+#grafo .rotulo-aresta { fill: #d4d4d4; font: 500 11px var(--mono); paint-order: stroke; stroke: #0a0a0a; stroke-width: 4px; stroke-linejoin: round; }
+#grafo .no { fill: #ededed; stroke: #0a0a0a; stroke-width: 3; }
+#grafo .no.deposito { fill: #f5a623; }
+#grafo .rotulo-no { fill: #ededed; font: 600 14px var(--font); paint-order: stroke; stroke: #0a0a0a; stroke-width: 4px; }
+#grafo .alvo { stroke: transparent; stroke-width: 18; cursor: pointer; }
+#grafo .alvo:focus-visible { outline: none; stroke: #ffffff22; }
 .sw-route { background: #3291ff; }
-.sw-edge { background: #333333; }
+.sw-thick { width: 22px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #50e3c233, #50e3c2); }
 .sw-depot { background: #f5a623; border-radius: 50%; }
-.sw-node { background: #50e3c2; border-radius: 50%; }
+.sw-node { background: #ededed; border-radius: 50%; }
+.sw-sel { background: #ff4d9d; }
+.scale-note { margin: -6px 0 10px; font-size: 12px; line-height: 18px; color: #8f8f8f; max-width: 90ch; }
+.scale-note strong { color: #f5a623; font-weight: 500; }
+.edge-info { margin-top: 12px; padding: 12px 14px; border-radius: var(--r-m); background: #161616; box-shadow: inset 0 0 0 1px #262626; font-size: 13px; line-height: 20px; color: #b4b4b4; }
+.edge-info p { margin: 0; }
+.edge-info p + p { margin-top: 4px; }
+.edge-info strong, .edge-info b { color: #ededed; font-weight: 500; }
+.edge-table { padding: 14px 20px 18px; }
+.edge-table summary, .log details > summary { cursor: pointer; font-weight: 500; font-size: 14px; }
+.edge-table .table-scroll { margin: 12px 0 8px; }
 
-.scroll-list { display: grid; gap: 6px; max-height: 380px; overflow: auto; overscroll-behavior: contain; align-content: start; }
-.scroll-list:empty::before { content: "Ainda vazio. Clique em Executar algoritmo ou Avançar iteração."; color: var(--muted); font-size: 13px; }
-.scroll-list p, .vertex-list p {
-  margin: 0; padding: 8px 10px; border-radius: var(--r-s); background: var(--surface-2);
-  font: 400 12.5px/18px var(--mono); color: var(--body); overflow-wrap: anywhere;
+.history td.mono { font: 400 12.5px/1 var(--mono); }
+.log .ant > summary { font: 500 13px/20px var(--mono); }
+.log .steps { margin: 10px 0 6px; padding-left: 20px; display: grid; gap: 8px; }
+.log .steps li { color: var(--body); }
+.log .cand { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 7px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font: 400 12px/18px var(--mono); }
+.log .cand.chosen { box-shadow: inset 0 0 0 1.5px var(--p1); color: var(--ink); }
+.log .pher .table-scroll { margin: 10px 0 6px; max-height: 320px; }
+.log .entry p { margin: 4px 0; }
+@media (max-width: 560px) {
+  table.projects.vertices tr { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr) var(--ctl); grid-template-areas: "id x y r"; align-items: end; }
+  table.projects.vertices td.c-id { grid-area: id; }
+  table.projects.vertices td.c-x { grid-area: x; }
+  table.projects.vertices td.c-y { grid-area: y; }
+  table.projects.vertices td:last-child { grid-area: r; }
+  table.projects.vertices td.c-id::before { content: "ID"; display: block; font: 400 11px/16px var(--mono); color: var(--muted); margin-bottom: 4px; }
 }
-.vertex-list { display: grid; gap: 6px; margin-top: 16px; }
-.vertex-list:empty { display: none; }
-.metrics .metric { align-content: center; min-height: 84px; }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Simulador de Colônia de Formigas</title>
+    <meta name="description" content="Simulador de otimização por colônia de formigas (Ant System) para planejar uma rota de entregas.">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐜</text></svg>">
@@ -21,14 +22,14 @@
         <div class="mesh" aria-hidden="true"></div>
         <div class="topbar-inner">
             <div class="brand">
-                <span class="badge-top enter-up d0"><span class="dot"></span>Otimização por colônia de formigas</span>
+                <span class="badge-top enter-up d0"><span class="dot"></span>Inteligência Artificial, UFPI 2026.2</span>
                 <h1><span class="enter-mask"><span>Simulador de Colônia de Formigas</span></span></h1>
-                <p class="enter-up d1">As formigas percorrem o grafo guiadas pelo feromônio deixado nas arestas. Ajuste os parâmetros e acompanhe a melhor rota a cada iteração.</p>
+                <p class="enter-up d1">Um veículo sai do depósito, visita cada ponto de entrega uma vez e volta. As formigas do Ant System procuram a rota mais curta, guiadas pela distância e pelo feromônio.</p>
             </div>
             <nav class="toplinks enter-up d2" aria-label="Links">
                 <a class="btn primary" href="#simulacao">Ver a simulação</a>
                 <a id="repo-link" class="btn" href="https://github.com/joaognx/ColoniaDeFormigas" target="_blank" rel="noopener" translate="no">Código no GitHub</a>
-                <a class="btn ghost" href="#logs-titulo">Logs de execução</a>
+                <a class="btn ghost" href="#testes">Testes de validação</a>
             </nav>
         </div>
     </header>
@@ -37,98 +38,133 @@
         <aside class="config" aria-label="Configuração">
 
             <section class="panel">
-                <h2>Configurações</h2>
+                <div class="panel-head">
+                    <h2>Vértices</h2>
+                    <span id="contagem" class="muted"></span>
+                </div>
+                <div class="projects-wrap">
+                    <table class="projects vertices">
+                        <thead>
+                            <tr><th scope="col">ID</th><th scope="col">X</th><th scope="col">Y</th><th scope="col"><span class="sr-only">Remover</span></th></tr>
+                        </thead>
+                        <tbody id="corpo-vertices"></tbody>
+                    </table>
+                </div>
+                <div class="row-actions">
+                    <button type="button" id="adicionar-vertice" class="btn">Adicionar vértice</button>
+                </div>
+                <div class="fields sep">
+                    <label class="field wide">
+                        <span>Depósito</span>
+                        <select id="deposito" name="deposito"></select>
+                        <small class="err" data-for="deposito"></small>
+                    </label>
+                </div>
+                <p class="hint vert-hint">De 4 a 12 vértices; coordenadas entre 0 e 1.000, com até duas casas decimais.</p>
+                <div class="row-actions">
+                    <button type="button" id="carregar-teste" class="btn ghost">Carregar instância de teste (6.1)</button>
+                    <button type="button" id="carregar-inicial" class="btn ghost">Restaurar cenário inicial</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Parâmetros</h2>
                 <div class="fields">
                     <label class="field">
                         <span>Número de formigas</span>
-                        <input type="number" id="numeroFormigas" name="numeroFormigas" value="10">
+                        <input id="numeroFormigas" name="numeroFormigas" inputmode="numeric" autocomplete="off">
+                        <small class="hint">inteiro de 1 a 100</small>
+                        <small class="err" data-for="numeroFormigas"></small>
                     </label>
                     <label class="field">
                         <span>Número de iterações</span>
-                        <input type="number" id="numeroIteracoes" name="numeroIteracoes" value="30">
+                        <input id="numeroIteracoes" name="numeroIteracoes" inputmode="numeric" autocomplete="off">
+                        <small class="hint">inteiro de 1 a 200</small>
+                        <small class="err" data-for="numeroIteracoes"></small>
                     </label>
                     <label class="field">
-                        <span>Alfa</span>
-                        <input type="number" id="alfa" name="alfa" value="1" step="0.1">
+                        <span>Influência do feromônio (α)</span>
+                        <input id="alfa" name="alfa" inputmode="decimal" autocomplete="off">
+                        <small class="hint">de 0 a 5</small>
+                        <small class="err" data-for="alfa"></small>
                     </label>
                     <label class="field">
-                        <span>Beta</span>
-                        <input type="number" id="beta" name="beta" value="2" step="0.1">
+                        <span>Influência da distância (β)</span>
+                        <input id="beta" name="beta" inputmode="decimal" autocomplete="off">
+                        <small class="hint">de 0 a 5</small>
+                        <small class="err" data-for="beta"></small>
                     </label>
                     <label class="field">
-                        <span>Rho</span>
-                        <input type="number" id="rho" name="rho" value="0.5" step="0.1">
+                        <span>Taxa de evaporação (ρ, %)</span>
+                        <input id="rho" name="rho" inputmode="decimal" autocomplete="off">
+                        <small class="hint">de 0% a 90%</small>
+                        <small class="err" data-for="rho"></small>
                     </label>
                     <label class="field">
-                        <span>Tau inicial</span>
-                        <input type="number" id="tau0" name="tau0" value="1" step="0.1">
+                        <span>Feromônio inicial (τ₀)</span>
+                        <input id="tau0" name="tau0" inputmode="decimal" autocomplete="off">
+                        <small class="hint">de 0,01 a 100</small>
+                        <small class="err" data-for="tau0"></small>
                     </label>
                     <label class="field">
-                        <span>Q</span>
-                        <input type="number" id="Q" name="Q" value="14">
+                        <span>Constante de depósito (Q)</span>
+                        <input id="Q" name="Q" inputmode="decimal" autocomplete="off">
+                        <small class="hint">de 0,01 a 10.000</small>
+                        <small class="err" data-for="Q"></small>
                     </label>
                     <label class="field">
-                        <span>Semente</span>
-                        <input type="number" id="semente" name="semente" value="42">
+                        <span>Semente aleatória</span>
+                        <input id="semente" name="semente" inputmode="numeric" autocomplete="off">
+                        <small class="hint">inteiro</small>
+                        <small class="err" data-for="semente"></small>
                     </label>
                 </div>
             </section>
 
-            <section class="panel">
+            <section class="panel controls">
                 <h2>Execução</h2>
                 <div class="btn-grid">
-                    <button type="button" id="executar" class="btn primary wide">Executar algoritmo</button>
-                    <button type="button" id="avancar" class="btn">Avançar iteração</button>
+                    <button type="button" id="executar" class="btn primary">Executar</button>
+                    <button type="button" id="pausar" class="btn">Pausar</button>
+                    <button type="button" id="avancar" class="btn">Avançar uma iteração</button>
                     <button type="button" id="reiniciar" class="btn">Reiniciar</button>
                 </div>
-            </section>
-
-            <section class="panel">
-                <h2>Gerenciar vértices</h2>
-                <div class="fields">
-                    <label class="field wide">
-                        <span>ID</span>
-                        <input type="text" id="idVertice" name="idVertice" placeholder="Ex: E" autocomplete="off" spellcheck="false">
-                    </label>
-                    <label class="field">
-                        <span>Coordenada X</span>
-                        <input type="number" id="coordX" name="coordX">
-                    </label>
-                    <label class="field">
-                        <span>Coordenada Y</span>
-                        <input type="number" id="coordY" name="coordY">
-                    </label>
-                </div>
-                <div class="row-actions">
-                    <button type="button" id="adicionarVertice" class="btn">Adicionar vértice</button>
-                </div>
-
-                <div class="fields sep">
-                    <label class="field wide">
-                        <span>Selecionar vértice</span>
-                        <select id="selecionarVertice" name="selecionarVertice"></select>
-                    </label>
-                </div>
-                <div class="row-actions">
-                    <button type="button" id="editarVertice" class="btn">Editar vértice</button>
-                    <button type="button" id="removerVertice" class="btn">Remover vértice</button>
-                    <button type="button" id="definirDeposito" class="btn">Definir como depósito</button>
-                </div>
-
-                <div id="listaVertices" class="vertex-list" translate="no"></div>
+                <label class="field speed">
+                    <span>Velocidade da execução</span>
+                    <select id="velocidade" name="velocidade">
+                        <option value="0">Rápida (sem pausa)</option>
+                        <option value="300" selected>Normal (0,3 s por iteração)</option>
+                        <option value="1000">Lenta (1 s por iteração)</option>
+                    </select>
+                    <small class="hint">A velocidade só muda o ritmo da tela; os sorteios e resultados são os mesmos.</small>
+                </label>
+                <p id="status" class="status" role="status" aria-live="polite"></p>
+                <ul id="lista-erros" class="error-list" hidden></ul>
             </section>
         </aside>
 
         <main class="main" id="simulacao" tabindex="-1">
-            <section class="metrics" aria-label="Melhor resultado">
+            <section class="metrics" aria-label="Situação da execução">
                 <div class="metric">
-                    <p id="iteracao" class="m-value">Iteração: 0</p>
+                    <span class="m-label">Iteração atual</span>
+                    <span class="m-value" id="m-iteracao">0</span>
                 </div>
                 <div class="metric">
-                    <p id="melhorDistancia" class="m-value accent-text">Distância: --</p>
+                    <span class="m-label">Menor distância da iteração</span>
+                    <span class="m-value" id="m-menor">—</span>
+                </div>
+                <div class="metric">
+                    <span class="m-label">Média das distâncias das formigas</span>
+                    <span class="m-value" id="m-media">—</span>
+                </div>
+                <div class="metric accent">
+                    <span class="m-label">Melhor distância acumulada</span>
+                    <span class="m-value" id="m-melhor">—</span>
                 </div>
                 <div class="metric route">
-                    <p id="melhorRota" class="m-route" translate="no">Melhor rota: --</p>
+                    <span class="m-label">Melhor rota acumulada</span>
+                    <span class="m-route" id="m-rota" translate="no">ainda não calculada</span>
+                    <span class="m-sub" id="m-rota-sub"></span>
                 </div>
             </section>
 
@@ -136,34 +172,79 @@
                 <div class="bench-head">
                     <div>
                         <h2 id="grafo-titulo">Grafo</h2>
-                        <p class="muted small">Os números nas arestas são o feromônio atual; a melhor rota fica destacada.</p>
+                        <p class="muted small">Clique em uma aresta ou passe o cursor sobre ela para ver distância e feromônio.</p>
                     </div>
+                    <label class="inline">
+                        <input type="checkbox" id="mostrar-valores" checked>
+                        <span>Mostrar feromônio nas arestas</span>
+                    </label>
                 </div>
                 <div class="stage">
                     <div class="stage-legend" aria-hidden="true">
-                        <span><i class="sw sw-route"></i>melhor rota</span>
-                        <span><i class="sw sw-edge"></i>aresta</span>
+                        <span><i class="sw sw-route"></i>melhor rota acumulada</span>
+                        <span><i class="sw sw-thick"></i>espessura e brilho = feromônio</span>
                         <span><i class="sw sw-depot"></i>depósito</span>
-                        <span><i class="sw sw-node"></i>vértice</span>
+                        <span><i class="sw sw-node"></i>ponto de entrega</span>
+                        <span><i class="sw sw-sel"></i>aresta selecionada</span>
                     </div>
+                    <p id="escala" class="scale-note"></p>
                     <div id="grafo" translate="no"></div>
+                    <div id="aresta-info" class="edge-info" aria-live="polite"></div>
                 </div>
+                <details class="edge-table">
+                    <summary>Distância, feromônio e peso de todas as arestas</summary>
+                    <div class="table-scroll"><table class="history" id="tabela-arestas"></table></div>
+                    <p class="muted small">A distância é um custo fixo da aresta. O feromônio muda a cada iteração. O peso de escolha w = τ^α × (1/d)^β combina os dois e não é uma distância.</p>
+                </details>
             </section>
 
-            <div class="two-col">
-                <section class="panel" aria-labelledby="hist-titulo">
-                    <h2 id="hist-titulo">Histórico</h2>
-                    <div id="historico" class="scroll-list" translate="no"></div>
-                </section>
+            <section class="panel" aria-labelledby="hist-titulo">
+                <h2 id="hist-titulo">Histórico por iteração</h2>
+                <div class="table-scroll">
+                    <table class="history">
+                        <thead>
+                            <tr>
+                                <th scope="col">Iteração</th>
+                                <th scope="col">Menor distância</th>
+                                <th scope="col">Média</th>
+                                <th scope="col">Melhor rota da iteração</th>
+                                <th scope="col">Melhor acumulada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historico"></tbody>
+                    </table>
+                </div>
+                <p class="muted small">Clique no número de uma iteração para abrir os logs dela.</p>
+            </section>
 
-                <section class="panel" aria-labelledby="logs-titulo">
+            <section class="panel" aria-labelledby="logs-titulo">
+                <div class="panel-head">
                     <h2 id="logs-titulo">Logs de execução</h2>
-                    <div id="logs" class="scroll-list log" translate="no"></div>
-                </section>
-            </div>
+                    <label class="inline">
+                        <span>Iteração</span>
+                        <select id="logs-iteracao"></select>
+                    </label>
+                </div>
+                <div id="logs" class="log" translate="no"></div>
+            </section>
+
+            <section class="panel" id="testes" aria-labelledby="testes-titulo">
+                <div class="panel-head">
+                    <h2 id="testes-titulo">Testes de validação</h2>
+                    <button type="button" id="executar-testes" class="btn">Executar testes</button>
+                </div>
+                <p class="muted small">Os testes da seção 6 usam a instância A, B, C, D e chamam diretamente as mesmas funções do simulador, sem depender do que está na tela.</p>
+                <div id="testes-saida"></div>
+            </section>
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <footer class="foot">
+        <p>Universidade Federal do Piauí, disciplina de Inteligência Artificial, 2026.2. Sem bibliotecas: o algoritmo, o gerador com semente e o desenho do grafo foram escritos para este trabalho.</p>
+    </footer>
+
+    <script src="colonia.js"></script>
+    <script src="testes.js"></script>
+    <script src="interface.js"></script>
 </body>
 </html>
