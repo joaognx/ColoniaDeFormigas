@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador de Colônia de Formigas</title>
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐜</text></svg>">
+    <script>document.documentElement.classList.add('js')</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a class="skip" href="#simulacao">Pular para a simulação</a>
+
+    <header class="topbar">
+        <div class="mesh" aria-hidden="true"></div>
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="badge-top enter-up d0"><span class="dot"></span>Otimização por colônia de formigas</span>
+                <h1><span class="enter-mask"><span>Simulador de Colônia de Formigas</span></span></h1>
+                <p class="enter-up d1">As formigas percorrem o grafo guiadas pelo feromônio deixado nas arestas. Ajuste os parâmetros e acompanhe a melhor rota a cada iteração.</p>
+            </div>
+            <nav class="toplinks enter-up d2" aria-label="Links">
+                <a class="btn primary" href="#simulacao">Ver a simulação</a>
+                <a class="btn ghost" href="#logs-titulo">Logs de execução</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="config" aria-label="Configuração">
+
+            <section class="panel">
+                <h2>Configurações</h2>
+                <div class="fields">
+                    <label class="field">
+                        <span>Número de formigas</span>
+                        <input type="number" id="numeroFormigas" name="numeroFormigas" value="10">
+                    </label>
+                    <label class="field">
+                        <span>Número de iterações</span>
+                        <input type="number" id="numeroIteracoes" name="numeroIteracoes" value="30">
+                    </label>
+                    <label class="field">
+                        <span>Alfa</span>
+                        <input type="number" id="alfa" name="alfa" value="1" step="0.1">
+                    </label>
+                    <label class="field">
+                        <span>Beta</span>
+                        <input type="number" id="beta" name="beta" value="2" step="0.1">
+                    </label>
+                    <label class="field">
+                        <span>Rho</span>
+                        <input type="number" id="rho" name="rho" value="0.5" step="0.1">
+                    </label>
+                    <label class="field">
+                        <span>Tau inicial</span>
+                        <input type="number" id="tau0" name="tau0" value="1" step="0.1">
+                    </label>
+                    <label class="field">
+                        <span>Q</span>
+                        <input type="number" id="Q" name="Q" value="14">
+                    </label>
+                    <label class="field">
+                        <span>Semente</span>
+                        <input type="number" id="semente" name="semente" value="42">
+                    </label>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Execução</h2>
+                <div class="btn-grid">
+                    <button type="button" id="executar" class="btn primary wide">Executar algoritmo</button>
+                    <button type="button" id="avancar" class="btn">Avançar iteração</button>
+                    <button type="button" id="reiniciar" class="btn">Reiniciar</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>Gerenciar vértices</h2>
+                <div class="fields">
+                    <label class="field wide">
+                        <span>ID</span>
+                        <input type="text" id="idVertice" name="idVertice" placeholder="Ex: E" autocomplete="off" spellcheck="false">
+                    </label>
+                    <label class="field">
+                        <span>Coordenada X</span>
+                        <input type="number" id="coordX" name="coordX">
+                    </label>
+                    <label class="field">
+                        <span>Coordenada Y</span>
+                        <input type="number" id="coordY" name="coordY">
+                    </label>
+                </div>
+                <div class="row-actions">
+                    <button type="button" id="adicionarVertice" class="btn">Adicionar vértice</button>
+                </div>
+
+                <div class="fields sep">
+                    <label class="field wide">
+                        <span>Selecionar vértice</span>
+                        <select id="selecionarVertice" name="selecionarVertice"></select>
+                    </label>
+                </div>
+                <div class="row-actions">
+                    <button type="button" id="editarVertice" class="btn">Editar vértice</button>
+                    <button type="button" id="removerVertice" class="btn">Remover vértice</button>
+                    <button type="button" id="definirDeposito" class="btn">Definir como depósito</button>
+                </div>
+
+                <div id="listaVertices" class="vertex-list" translate="no"></div>
+            </section>
+        </aside>
+
+        <main class="main" id="simulacao" tabindex="-1">
+            <section class="metrics" aria-label="Melhor resultado">
+                <div class="metric">
+                    <p id="iteracao" class="m-value">Iteração: 0</p>
+                </div>
+                <div class="metric">
+                    <p id="melhorDistancia" class="m-value accent-text">Distância: --</p>
+                </div>
+                <div class="metric route">
+                    <p id="melhorRota" class="m-route" translate="no">Melhor rota: --</p>
+                </div>
+            </section>
+
+            <section class="panel bench" aria-labelledby="grafo-titulo">
+                <div class="bench-head">
+                    <div>
+                        <h2 id="grafo-titulo">Grafo</h2>
+                        <p class="muted small">Os números nas arestas são o feromônio atual; a melhor rota fica destacada.</p>
+                    </div>
+                </div>
+                <div class="stage">
+                    <div class="stage-legend" aria-hidden="true">
+                        <span><i class="sw sw-route"></i>melhor rota</span>
+                        <span><i class="sw sw-edge"></i>aresta</span>
+                        <span><i class="sw sw-depot"></i>depósito</span>
+                        <span><i class="sw sw-node"></i>vértice</span>
+                    </div>
+                    <div id="grafo" translate="no"></div>
+                </div>
+            </section>
+
+            <div class="two-col">
+                <section class="panel" aria-labelledby="hist-titulo">
+                    <h2 id="hist-titulo">Histórico</h2>
+                    <div id="historico" class="scroll-list" translate="no"></div>
+                </section>
+
+                <section class="panel" aria-labelledby="logs-titulo">
+                    <h2 id="logs-titulo">Logs de execução</h2>
+                    <div id="logs" class="scroll-list log" translate="no"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
