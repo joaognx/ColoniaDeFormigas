@@ -8,6 +8,8 @@ Trabalho da disciplina de Inteligência Artificial, Universidade Federal do Piau
 ## Autores
 
 - Mayra Gabriela Sousa da Silva
+- João Gabriel Nunes Oliveira Lima
+- Arthur Sobreira Alexandrino
 
 ## 1. Sobre o projeto
 
